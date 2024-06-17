@@ -1,4 +1,13 @@
 package org.example;
 
-public record Rue(String rue, Lieu depart, Lieu arrivee) {
+public class Rue {
+    Lieu destination;
+
+    public Rue(Lieu destination) {
+        this.destination = destination;
+    }
+
+    public Lieu getDestination() {
+        return destination;
+    }
 }
