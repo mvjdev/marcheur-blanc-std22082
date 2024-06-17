@@ -1,25 +1,30 @@
 package org.example;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 public class Lieu {
-    private final String nom;
+    String nom;
+    int valeur;
+    List<Rue> rues;
 
-    private List<Rue> listRueAccessible;
-
-    public Lieu(String nom) {
+    public Lieu(String nom, int valeur) {
         this.nom = nom;
-        this.listRueAccessible = new ArrayList<>();
+        this.valeur = valeur;
+        rues = new ArrayList<>();
     }
-
-    public void ajouterUnRue(Rue rue) {
-        if (!listRueAccessible.contains(rue)) {
-            listRueAccessible.add(rue);
-        }
+    public void ajouterRue(Rue rue) {
+        rues.add(rue);
+    }
+    public String getNom() {
+        return nom;
+    }
+    public int getValeur() {
+        return valeur;
+    }
+    public List<Rue> getRues() {
+        return rues;
     }
 }
