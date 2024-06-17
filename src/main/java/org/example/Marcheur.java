@@ -1,44 +1,61 @@
 package org.example;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.*;
+import java.util.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-@AllArgsConstructor
-@Getter
 public class Marcheur {
-    private Lieu position;
-    private final Lieu destination;
-    private List<Lieu> marche;
+    private static final Logger logger = Logger.getLogger(Marcheur.class.getName());
+    Lieu positionActuelle;
 
-    public Marcheur(Lieu destination, Lieu position) {
-        this.destination = destination;
-        this.position = position;
-        this.marche = new ArrayList<>();
+    public Marcheur (Lieu lieuDeDepart) {
+        this.positionActuelle = lieuDeDepart;
+        logger.info("Départ de Bjarni à: " + lieuDeDepart.getNom());
+    }
+    public List<Lieu> trouverChemin(Carte carte, String destinationNom){
+        Lieu destination = carte.getLieu(destinationNom);
+
+        if(destination == null){
+            logger.info("Destination inconnue: " + destinationNom);
+            return Collections.emptyList();
+        }
+
+        Queue<List<Lieu>> queue = new LinkedList<>();
+        Set<Lieu> visites = new HashSet<>();
+
+        List<Lieu> cheminInitial = new ArrayList<>();
+        cheminInitial.add(positionActuelle);
+        queue.add(cheminInitial);
+
+        while (!queue.isEmpty()){
+            List<Lieu> chemin = queue.poll();
+            Lieu dernierLieu = chemin.get(chemin.size() -1);
+
+            if (dernierLieu.equals(destination)){
+                logger.info("Chemin trouvé: " + cheminToString(chemin));
+                return chemin;
+            }
+            visites.add(dernierLieu);
+
+            for (Rue rue: dernierLieu.getRues()){
+                Lieu prochainLieu = rue.getDestination();
+
+                if(!visites.contains(prochainLieu)){
+                    List<Lieu> nouveauChemin = new ArrayList<>(chemin);
+                    nouveauChemin.add(prochainLieu);
+                    queue.add(nouveauChemin);
+                }
+            }
+        }
+        logger.warning("Aucun chemin trouvé vers: " + destinationNom);
+        return Collections.emptyList();
     }
 
-    public List<Lieu> marcher(){
-        Random random = new Random();
-
-        if(!position.equals(destination)){
-            List<Rue> rueAccessibleDepart = position.getListRueAccessible();
-            List<Rue> rueAccessibleDestination = destination.getListRueAccessible();
-
-            if (rueAccessibleDepart.isEmpty()){
-                System.out.println("Position n'existe pas " + position.getNom());
-            }
-            if (rueAccessibleDestination.isEmpty()){
-                System.out.println("Destination n'existe pas " + destination.getNom());
-            }
-            Rue rueAleatoireDepart = rueAccessibleDepart.get(random.nextInt(rueAccessibleDepart.size()));
-            position = rueAleatoireDepart.depart().equals(position)
-                    ? rueAleatoireDepart.arrivee()
-                    : rueAleatoireDepart.arrivee();
-            marche.add(position);
+    private String cheminToString(List<Lieu> chemin){
+        StringBuilder sb = new StringBuilder();
+        for (Lieu lieu: chemin){
+            sb.append(lieu.getNom()).append("->");
         }
-        return marche;
+        sb.delete(sb.length()-4, sb.length());
+        return sb.toString();
     }
 }
